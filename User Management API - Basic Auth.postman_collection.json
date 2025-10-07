@@ -1,0 +1,300 @@
+{
+	"info": {
+		"_postman_id": "2b40b809-a728-4516-936e-9201347ac09f",
+		"name": "User Management API - Basic Auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47781860",
+		"_collection_link": "https://javithbasha-u-2822277.postman.co/workspace/Javith-basha's-Workspace~17d488a4-a9e1-4434-87c7-c1f94eade99e/collection/47781860-2b40b809-a728-4516-936e-9201347ac09f?action=share&source=collection_link&creator=47781860"
+	},
+	"item": [
+		{
+			"name": "Create Employee",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Generate random username & password\r",
+							"const randomStr = Math.floor(Math.random() * 10000);\r",
+							"pm.variables.set(\"randomUsername\", \"user_\" + randomStr);\r",
+							"pm.variables.set(\"randomPassword\", \"pass_\" + randomStr);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User created successfully\", () => {\r",
+							"  pm.response.to.have.status(201);\r",
+							"  const res = pm.response.json();\r",
+							"  pm.expect(res).to.have.property(\"id\");\r",
+							"  pm.environment.set(\"userId\", res.id);\r",
+							"  console.log(\"Created User ID:\", res.id);\r",
+							"});\r",
+							"// Negative Test – Invalid Credentials\r",
+							"pm.test(\"Unauthorized with invalid credentials\", () => {\r",
+							"    pm.expect(pm.response.code).to.equal(401);\r",
+							"});\r",
+							"pm.test(\"Response shows authentication error\", () => {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Unauthorized\");\r",
+							"});\r",
+							"//Negative Test – Missing Required Fields\r",
+							"pm.test(\"Bad request due to missing fields\", () => {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([400, 422]); // depends on server\r",
+							"});\r",
+							"pm.test(\"Response contains error message\", () => {\r",
+							"    const res = pm.response.json();\r",
+							"    pm.expect(res).to.have.property(\"error\");\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "admin123",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"{{randomUsername}}\",\r\n  \"password\": \"{{randomPassword}}\",\r\n  \"role\": \"user\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/emp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"emp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET BY ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+							"pm.test(\"Unauthorized with invalid credentials\", () => {\r",
+							"    pm.expect(pm.response.code).to.equal(401);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response shows authentication error\", () => {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Unauthorized\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "admin12",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/emp/{{userId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"emp",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET BY ID Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Generate random username & password\r",
+							"const randomStr = Math.floor(Math.random() * 10000);\r",
+							"pm.variables.set(\"randomUsername\", \"user_\" + randomStr);\r",
+							"pm.variables.set(\"randomPassword\", \"pass_\" + randomStr);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"{{randomUsername}}_updated\",\r\n  \"password\": \"{{randomPassword}}_updated\",\r\n  \"role\": \"admin\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/emp/{{userId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"emp",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE BY ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"User deleted successfully\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/emp/{{userId}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"emp",
+						"{{userId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "admin123",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "admin",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
