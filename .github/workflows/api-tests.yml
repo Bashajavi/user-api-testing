@@ -2,9 +2,10 @@ name: API Tests
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight
+  workflow_dispatch:     # Allows manual trigger from GitHub Actions UI
 
 jobs:
   run-postman-tests:
@@ -12,26 +13,29 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
 
-    - name: Install Newman
-      run: npm install -g newman newman-reporter-html
-
-    - name: Run Postman Collection
+    - name: Install Newman and HTML Reporter
       run: |
+        npm install -g newman
+        npm install -g newman-reporter-html
+
+    - name: Run Postman Collection with Data File
+      run: |
+        # Run positive and negative tests from data file
         newman run "User Management API - Basic Auth.postman_collection.json" \
           -e "AUTH API TEST.postman_environment.json" \
-          -r cli,html \
+          -d "users.csv" \
+          -r html \
           --reporter-html-export "newman-report.html"
 
     - name: Upload Newman HTML Report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: newman-html-report
         path: newman-report.html
-
