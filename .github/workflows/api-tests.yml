@@ -2,40 +2,37 @@ name: API Tests
 
 on:
   push:
-    branches: [main]
-  schedule:
-    - cron: '0 0 * * *'  # Runs every day at midnight
-  workflow_dispatch:     # Allows manual trigger from GitHub Actions UI
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  run-postman-tests:
+  run-api-tests:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
-    - name: Install Newman and HTML Reporter
-      run: |
-        npm install -g newman
-        npm install -g newman-reporter-html
+      - name: Install Newman and reporters
+        run: |
+          npm install -g newman newman-reporter-htmlextra
 
-    - name: Run Postman Collection with Data File
-      run: |
-        # Run positive and negative tests from data file
-        newman run "User Management API - Basic Auth.postman_collection.json" \
+      - name: Run Postman collection
+        run: |
+          newman run "User Management API - Basic Auth.postman_collection.json" \
           -e "AUTH API TEST.postman_environment.json" \
-          -d "users.csv" \
-          -r html \
-          --reporter-html-export "newman-report.html"
+          -r htmlextra \
+          --reporter-htmlextra-export "newman-report.html"
 
-    - name: Upload Newman HTML Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: newman-html-report
-        path: newman-report.html
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-report
+          path: newman-report.html
